@@ -16,13 +16,12 @@ async function renderConsultarVotosView() {
 
             <div class="filters-container">
                 <div class="filter-group">
-                    <label for="filter-party">Filtrar por Partido:</label>
+                    <label for="filter-party">Filtrar por:</label>
                     <select id="filter-party">
                         <option value="">Todos los Partidos</option>
                         </select>
                 </div>
                 <div class="filter-group">
-                    <label for="filter-cargo">Filtrar por Cargo:</label>
                     <select id="filter-cargo">
                         <option value="">Todas las Candidaturas</option>
                         </select>
@@ -35,8 +34,8 @@ async function renderConsultarVotosView() {
                     <thead>
                         <tr>
                             <th>Partido Político</th>
-                            <th>Candidato</th>
-                            <th>Cargo</th>
+                            <th>Nombre del Candidato</th>
+                            <th>Cargo Aspirante</th>
                             <th>Departamento</th>
                             <th>Municipio</th>
                         </tr>

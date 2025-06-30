@@ -31,7 +31,7 @@ try {
             C.cargo,
             COALESCE(D.nombre, 'N/A') AS nombreDepartamento,
             COALESCE(M.nombre, 'N/A') AS nombreMunicipio
-        FROM Votos AS V
+        FROM Votaciones_Votos AS V
         JOIN Candidatos AS C ON V.idCandidato = C.idCandidato
         JOIN Partidos AS P ON C.idPartido = P.idPartido
         LEFT JOIN CandidatosDiputados AS CD ON C.idCandidato = CD.idCandidato
@@ -56,7 +56,7 @@ try {
     if (!empty($conditions)) {
         $sql .= " WHERE " . implode(" AND ", $conditions);
     }
-    $countSql = "SELECT COUNT(DISTINCT V.idVoto) AS totalRows FROM Votos AS V
+    $countSql = "SELECT COUNT(DISTINCT V.idVoto) AS totalRows FROM Votaciones_Votos AS V
                  JOIN Candidatos AS C ON V.idCandidato = C.idCandidato
                  JOIN Partidos AS P ON C.idPartido = P.idPartido";
     // Si hay condiciones
@@ -96,7 +96,7 @@ try {
         http_response_code(404);
         echo json_encode([
             'status' => 'success',
-            'message' => 'No se encontraron votos con los criterios especificados.',
+            'message' => 'No hay datos basados en esos criterios.',
             'data' => [],
             'totalRows' => 0,
             'totalPages' => 0,

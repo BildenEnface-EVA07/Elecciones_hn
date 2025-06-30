@@ -16,7 +16,7 @@ try {
                 SELECT 
                     p.nombrePartido, 
                     COUNT(v.idVoto) AS totalVotos 
-                FROM Votos v
+                FROM Votaciones_Votos v
                 JOIN Candidatos c ON v.idCandidato = c.idCandidato
                 JOIN Partidos p ON c.idPartido = p.idPartido
                 WHERE v.fecha >= NOW() - INTERVAL 24 HOUR
@@ -38,7 +38,7 @@ try {
                     c.cargo, 
                     p.nombrePartido, 
                     COUNT(v.idVoto) AS totalVotos
-                FROM Votos v
+                FROM Votaciones_Votos v
                 JOIN Candidatos c ON v.idCandidato = c.idCandidato
                 JOIN Partidos p ON c.idPartido = p.idPartido
                 GROUP BY c.cargo, p.nombrePartido
