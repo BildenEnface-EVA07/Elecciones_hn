@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Elecciones 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="Dashboard.css">
+</head>
+<body>
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="user-profile">
+                <div class="user-icon"></div>
+                <p class="user-name">HEYDEN ALFONSO ALDANA VARELA</p>
+                <button class="btn-logout">Cerrar Sesión</button>
+            </div>
+            <div class="sidebar-mobile-toggle">
+                <span class="icon-up">&#x25B2;</span> <span class="icon-down">&#x25BC;</span> </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" id="nav-dashboard" class="active">Dashboard</a></li>
+                    <li><a href="#" id="nav-consultar-votos">Consultar votos</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="content-area">
+            <div id="dynamic-content">
+                <h1 class="welcome-title">Bienvenido, Heyden Aldana</h1>
+                <p class="role-info">Su rol como usuario es: Colaborador</p>
+                <p class="role-description">Puedes revisar los movimientos y cantidad de votos del día aquí</p>
+
+                <div class="dashboard-metrics">
+                    <div class="chart-container">
+                        <h3>Cantidad de votos en las últimas 24h</h3>
+                        <canvas id="votos24hChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Votos totales actualmente por candidatura</h3>
+                        <canvas id="votosCandidaturaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/consultar_votos.js"></script>
+</body>
+</html>
