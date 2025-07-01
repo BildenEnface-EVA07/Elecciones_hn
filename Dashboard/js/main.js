@@ -2,6 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const dynamicContent = document.getElementById('dynamic-content');
     const navDashboard = document.getElementById('nav-dashboard');
     const navConsultarVotos = document.getElementById('nav-consultar-votos');
+    const navGestionEleccionesItem = document.getElementById('nav-gestion-elecciones-item');
+    const navGestionElecciones = document.getElementById('nav-gestion-elecciones');
+
     const userProfileName = document.querySelector('.user-profile .user-name');
     const welcomeTitle = document.querySelector('.welcome-title');
     const roleInfo = document.querySelector('.role-info');
@@ -15,14 +18,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     let currentView = 'dashboard';
+    let currentUserRole = 'admin';
 
     function updateUserInfo(name, role) {
         userProfileName.textContent = name;
         welcomeTitle.textContent = `Bienvenido, ${name.split(' ')[0]}`;
         roleInfo.textContent = `Su rol como usuario es: ${role}`;
+        currentUserRole = role;
+        updateSidebarVisibility(role);
     }
 
-    updateUserInfo("Heyden Aldana", "Colaborador");
+    function updateSidebarVisibility(role) {
+        if (navGestionEleccionesItem) {
+            if (role === 'admin') {
+                navGestionEleccionesItem.style.display = 'list-item';
+            } else {
+                navGestionEleccionesItem.style.display = 'none';
+            }
+        }
+    }
+
+    updateUserInfo("Heyden Aldana", "admin");
 
     async function loadView(viewName) {
         dynamicContent.innerHTML = '';
@@ -35,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (viewName === 'consultar-votos') {
             navConsultarVotos.classList.add('active');
             await renderConsultarVotosView();
+        } else if (viewName === 'gestion-elecciones' && currentUserRole === 'admin') {
+            navGestionElecciones.classList.add('active');
+            await renderGestionEleccionesView();
         }
         currentView = viewName;
     }
@@ -48,6 +67,17 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         loadView('consultar-votos');
     });
+
+    if (navGestionElecciones) {
+        navGestionElecciones.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentUserRole === 'admin') {
+                loadView('gestion-elecciones');
+            } else {
+                alert('No tienes permisos para acceder a esta sección.');
+            }
+        });
+    }
 
     loadView('dashboard');
 });

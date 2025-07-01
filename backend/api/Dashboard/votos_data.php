@@ -1,4 +1,8 @@
 <?php
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
+
 require_once '../../config/Database.php';
 
 header('Content-Type: application/json');
@@ -20,10 +24,9 @@ try {
         $partyId = isset($_GET['partyId']) ? $_GET['partyId'] : '';
         $cargo = isset($_GET['cargo']) ? $_GET['cargo'] : '';
 
-        // 1. Obtener el idProcesoVotacion del proceso activo más reciente
         $sqlProcesoActivo = "SELECT idProcesoVotacion FROM Proceso_Votacion WHERE sePuedeVotar = TRUE ORDER BY idProcesoVotacion DESC LIMIT 1";
         $resultProcesoActivo = $db->query($sqlProcesoActivo);
-        $procesoActivo = $db->fetchAssoc($resultProcesoActivo);
+        $procesoActivo = mysqli_fetch_assoc($resultProcesoActivo);
 
         $activeProcesoVotacionId = null;
         if ($procesoActivo) {
@@ -35,48 +38,48 @@ try {
         $totalPages = 1;
 
         if ($activeProcesoVotacionId !== null) {
-            $whereClause = "vv.idProcesoVotacion = '$activeProcesoVotacionId'";
+            $whereClause = "vv.idProcesoVotacion = $activeProcesoVotacionId";
+            $params = [];
 
             if (!empty($partyId)) {
-                $whereClause .= " AND c.idPartido = '$partyId'";
+                $whereClause .= " AND pa.idPartido = ?";
+                $params[] = $partyId;
             }
             if (!empty($cargo)) {
-                $whereClause .= " AND c.cargo = '$cargo'";
+                $whereClause .= " AND c.cargo = ?";
+                $params[] = $cargo;
             }
 
-            // Consulta para el total de filas
             $sqlCount = "
                 SELECT COUNT(vv.idVoto) AS total
                 FROM Votaciones_Votos vv
                 JOIN Candidatos c ON vv.idCandidato = c.idCandidato
-                WHERE $whereClause
-            ";
-            $countResult = $db->query($sqlCount);
-            $totalRows = $db->fetchAssoc($countResult)['total'];
+                JOIN Partidos pa ON c.idPartido = pa.idPartido
+                WHERE " . $whereClause;
+
+            $stmtCount = mysqli_prepare($db->getConnection(), $sqlCount);
+            if (!empty($params)) {
+                $types = str_repeat('s', count($params));
+                mysqli_stmt_bind_param($stmtCount, $types, ...$params);
+            }
+            mysqli_stmt_execute($stmtCount);
+            $resultCount = mysqli_stmt_get_result($stmtCount);
+            $totalRows = mysqli_fetch_assoc($resultCount)['total'];
+            mysqli_stmt_close($stmtCount);
+
             $totalPages = ceil($totalRows / $rowsPerPage);
-            if ($totalPages == 0) $totalPages = 1;
-
-            // Asegurar que currentPage no exceda totalPages
-            if ($currentPage < 1) $currentPage = 1;
-            if ($currentPage > $totalPages) $currentPage = $totalPages;
-
             $offset = ($currentPage - 1) * $rowsPerPage;
 
-            // Consulta principal para obtener los votos
             $sql = "
                 SELECT 
-                    vv.idVoto, 
-                    p.nombreCompleto AS nombrePersona,
-                    c.nombreCandidato, 
-                    c.cargo, 
                     pa.nombrePartido,
+                    c.nombreCandidato,
+                    c.cargo,
                     d.nombre AS nombreDepartamento,
                     m.nombre AS nombreMunicipio,
-                    vv.fecha
+                    COUNT(vv.idVoto) AS totalVotos
                 FROM 
                     Votaciones_Votos vv
-                JOIN 
-                    Personas p ON vv.idPersona = p.idPersona
                 JOIN 
                     Candidatos c ON vv.idCandidato = c.idCandidato
                 JOIN 
@@ -90,13 +93,26 @@ try {
                 LEFT JOIN 
                     Municipios m ON ca.idMunicipio = m.idMunicipio
                 WHERE 
-                    $whereClause
+                    " . $whereClause . "
+                GROUP BY
+                    pa.nombrePartido, c.nombreCandidato, c.cargo, d.nombre, m.nombre
                 ORDER BY 
                     vv.fecha DESC
-                LIMIT $offset, $rowsPerPage
-            ";
-            $result = $db->query($sql);
+                LIMIT ?, ?";
+            
+            $stmt = mysqli_prepare($db->getConnection(), $sql);
+            $types = '';
+            if (!empty($params)) {
+                $types .= str_repeat('s', count($params));
+            }
+            $types .= 'ii';
+            $allParams = array_merge($params, [$offset, $rowsPerPage]);
+            mysqli_stmt_bind_param($stmt, $types, ...$allParams);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
             $resultados = $db->fetchAll($result);
+            mysqli_stmt_close($stmt);
+
         }
 
         echo json_encode([

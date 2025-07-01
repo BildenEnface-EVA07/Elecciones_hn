@@ -1,9 +1,7 @@
-// js/consultar_votos.js
-
 const API_BASE_URL = window.location.origin + '/Elecciones_hn/backend/api/Dashboard/'; 
 
 let currentPage = 1;
-const rowsPerPage = 8; // 8 filas de datos + 1 fila de encabezado
+const rowsPerPage = 8;
 let totalPages = 1;
 let currentPartyId = '';
 let currentCargo = '';
@@ -38,153 +36,115 @@ async function renderConsultarVotosView() {
                             <th>Cargo Aspirante</th>
                             <th>Departamento</th>
                             <th>Municipio</th>
+                            <th>Total Votos</th>
                         </tr>
                     </thead>
                     <tbody>
-                        </tbody>
+                        
+                    </tbody>
                 </table>
-                <p id="no-data-message" style="display: none; text-align: center; margin-top: 20px;">No se encontraron votos con los filtros aplicados.</p>
+                <p id="no-data-message" style="display: none; text-align: center; color: #555; margin-top: 20px;">No hay registro de datos con estos criterios. Cambie los filtros o intente mas tarde</p>
             </div>
 
             <div class="pagination-controls">
-                <button id="prev-page-btn" class="btn-pagination" disabled>Anterior</button>
+                <button id="prev-page-btn" class="btn-pagination">Anterior</button>
                 <span id="page-info">Página 1 de 1</span>
-                <button id="next-page-btn" class="btn-pagination" disabled>Siguiente</button>
+                <button id="next-page-btn" class="btn-pagination">Siguiente</button>
             </div>
         </div>
     `;
 
-    setupConsultarVotosListeners();
-    await loadFilterOptions();
-    await fetchVotos();
-}
-
-function setupConsultarVotosListeners() {
     const filterPartySelect = document.getElementById('filter-party');
     const filterCargoSelect = document.getElementById('filter-cargo');
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
     const prevPageBtn = document.getElementById('prev-page-btn');
     const nextPageBtn = document.getElementById('next-page-btn');
 
-    if (filterPartySelect) {
-        filterPartySelect.addEventListener('change', async (event) => {
-            currentPartyId = event.target.value;
-            currentPage = 1; 
-            await fetchVotos();
-        });
-    }
+    filterPartySelect.addEventListener('change', (e) => {
+        currentPartyId = e.target.value;
+        currentPage = 1; 
+        fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+    });
 
-    if (filterCargoSelect) {
-        filterCargoSelect.addEventListener('change', async (event) => {
-            currentCargo = event.target.value;
-            currentPage = 1; 
-            await fetchVotos();
-        });
-    }
+    filterCargoSelect.addEventListener('change', (e) => {
+        currentCargo = e.target.value;
+        currentPage = 1; 
+        fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+    });
 
-    if (clearFiltersBtn) {
-        clearFiltersBtn.addEventListener('click', async () => {
-            currentPartyId = '';
-            currentCargo = '';
-            currentPage = 1;
-            if (filterPartySelect) filterPartySelect.value = '';
-            if (filterCargoSelect) filterCargoSelect.value = '';
-            await fetchVotos();
-        });
-    }
+    clearFiltersBtn.addEventListener('click', () => {
+        currentPartyId = '';
+        currentCargo = '';
+        filterPartySelect.value = '';
+        filterCargoSelect.value = '';
+        currentPage = 1;
+        fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+    });
 
-    if (prevPageBtn) {
-        prevPageBtn.addEventListener('click', async () => {
-            if (currentPage > 1) {
-                currentPage--;
-                await fetchVotos();
-            }
-        });
-    }
+    prevPageBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+        }
+    });
 
-    if (nextPageBtn) {
-        nextPageBtn.addEventListener('click', async () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                await fetchVotos();
-            }
-        });
-    }
+    nextPageBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+            currentPage++;
+            fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+        }
+    });
+
+    await populateFilters();
+    await fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
 }
 
-async function loadFilterOptions() {
+async function populateFilters() {
     const filterPartySelect = document.getElementById('filter-party');
     const filterCargoSelect = document.getElementById('filter-cargo');
 
-    // Cargar Partidos
-    if (filterPartySelect) {
-        try {
-            const response = await fetch(`${API_BASE_URL}get_partidos.php`);
-            const data = await response.json();
-            if (data.status === 'success' && data.data) {
-                data.data.forEach(party => {
-                    const option = document.createElement('option');
-                    option.value = party.idPartido;
-                    option.textContent = party.nombrePartido;
-                    filterPartySelect.appendChild(option);
-                });
-            } else {
-                console.error('Error al cargar partidos:', data.message || 'Error desconocido');
-            }
-        } catch (error) {
-            console.error('Error de red al cargar partidos:', error);
+    try {
+        const partiesResponse = await fetch(`${API_BASE_URL}get_partidos.php`);
+        const partiesData = await partiesResponse.json();
+        if (partiesData.status === 'success') {
+            partiesData.data.forEach(party => {
+                const option = document.createElement('option');
+                option.value = party.idPartido;
+                option.textContent = party.nombrePartido;
+                filterPartySelect.appendChild(option);
+            });
         }
-    }
 
-    // Cargar Cargos
-    if (filterCargoSelect) {
-        try {
-            const response = await fetch(`${API_BASE_URL}get_cargos.php`);
-            const data = await response.json();
-            if (data.status === 'success' && data.data) {
-                data.data.forEach(cargo => {
-                    const option = document.createElement('option');
-                    option.value = cargo;
-                    option.textContent = cargo;
-                    filterCargoSelect.appendChild(option);
-                });
-            } else {
-                console.error('Error al cargar cargos:', data.message || 'Error desconocido');
-            }
-        } catch (error) {
-            console.error('Error de red al cargar cargos:', error);
+        const cargosResponse = await fetch(`${API_BASE_URL}get_cargos.php`);
+        const cargosData = await cargosResponse.json();
+        if (cargosData.status === 'success') {
+            cargosData.data.forEach(cargo => {
+                const option = document.createElement('option');
+                option.value = cargo.cargo;
+                option.textContent = cargo.cargo;
+                filterCargoSelect.appendChild(option);
+            });
         }
+    } catch (error) {
+        console.error('Error al cargar filtros:', error);
     }
 }
 
-async function fetchVotos() {
+async function fetchVotos(page, limit, partyId, cargo) {
     const tbody = document.querySelector('#votos-table tbody');
     const noDataMessage = document.getElementById('no-data-message');
     const pageInfoSpan = document.getElementById('page-info');
     const prevPageBtn = document.getElementById('prev-page-btn');
     const nextPageBtn = document.getElementById('next-page-btn');
 
-    if (!tbody || !noDataMessage || !pageInfoSpan || !prevPageBtn || !nextPageBtn) {
-        console.error('Elementos del DOM de la tabla o paginación no encontrados.');
-        return;
-    }
-
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Cargando votos...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Cargando datos...</td></tr>';
     noDataMessage.style.display = 'none';
 
-    let url = `${API_BASE_URL}votos_data.php?page=${currentPage}&limit=${rowsPerPage}`;
-    if (currentPartyId) {
-        url += `&partyId=${currentPartyId}`;
-    }
-    if (currentCargo) {
-        url += `&cargo=${currentCargo}`;
-    }
-
     try {
-        const response = await fetch(url);
+        const response = await fetch(`${API_BASE_URL}votos_data.php?page=${page}&limit=${limit}&partyId=${partyId}&cargo=${cargo}`);
         const data = await response.json();
 
-        if (data.status === 'success' && data.data && data.data.length > 0) {
+        if (data.status === 'success' && data.data.length > 0) {
             tbody.innerHTML = ''; 
             data.data.forEach(voto => {
                 const row = tbody.insertRow();
@@ -193,6 +153,7 @@ async function fetchVotos() {
                 row.insertCell().textContent = voto.cargo;
                 row.insertCell().textContent = voto.nombreDepartamento || 'N/A';
                 row.insertCell().textContent = voto.nombreMunicipio || 'N/A';
+                row.insertCell().textContent = voto.totalVotos;
             });
             noDataMessage.style.display = 'none';
 
@@ -203,8 +164,8 @@ async function fetchVotos() {
             nextPageBtn.disabled = data.currentPage >= totalPages;
 
         } else {
-            tbody.innerHTML = ''; // Limpiar cualquier fila existente
-            noDataMessage.style.display = 'block'; // Mostrar mensaje de no datos
+            tbody.innerHTML = '';
+            noDataMessage.style.display = 'block';
             pageInfoSpan.textContent = `Página 1 de 1`;
             prevPageBtn.disabled = true;
             nextPageBtn.disabled = true;
@@ -212,7 +173,7 @@ async function fetchVotos() {
 
     } catch (error) {
         console.error('Error al obtener los votos:', error);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error al cargar los datos. Por favor, intente de nuevo.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Error al cargar los datos. Por favor, intente de nuevo.</td></tr>';
         noDataMessage.style.display = 'none';
         pageInfoSpan.textContent = `Página 1 de 1`;
         prevPageBtn.disabled = true;

@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require_once '../../config/Database.php';
 
 header('Content-Type: application/json');
@@ -11,7 +15,7 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $sql = "SELECT idProcesoVotacion, sePuedeVotar FROM Proceso_Votacion ORDER BY idProcesoVotacion DESC LIMIT 1";
         $result = $db->query($sql);
-        $proceso = $db->fetchAssoc($result);
+        $proceso = mysqli_fetch_assoc($result);
 
         if ($proceso) {
             echo json_encode([
@@ -22,7 +26,7 @@ try {
                 ]
             ]);
         } else {
-            http_response_code(200); 
+            http_response_code(200);
             echo json_encode([
                 'status' => 'success',
                 'message' => 'No se encontraron procesos de votación. Se asume que no hay elecciones activas.',
@@ -33,7 +37,7 @@ try {
             ]);
         }
     } else {
-        http_response_code(405); 
+        http_response_code(405);
         echo json_encode([
             'status' => 'error',
             'message' => 'Método no permitido.'

@@ -1,4 +1,7 @@
 <?php
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 require_once '../../config/Database.php';
 
 header('Content-Type: application/json');
@@ -15,15 +18,13 @@ try {
     $db = Database::getInstance();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Opcional: Asegurarse de que todos los procesos anteriores estén inactivos
-        // Esto evita múltiples procesos activos, aunque GetVotosDetails buscará solo el más reciente TRUE.
         $db->query("UPDATE Proceso_Votacion SET sePuedeVotar = FALSE WHERE sePuedeVotar = TRUE");
 
         $sqlInsert = "INSERT INTO Proceso_Votacion (sePuedeVotar) VALUES (TRUE)";
         $resultInsert = $db->query($sqlInsert);
 
         if ($resultInsert) {
-            $newId = $db->insertId(); // Obtener el ID del nuevo registro insertado
+            $newId = mysqli_insert_id($db->getConnection()); // Corregido aquí
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Un nuevo proceso de elecciones ha sido iniciado correctamente.',

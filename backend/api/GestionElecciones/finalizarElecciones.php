@@ -1,4 +1,7 @@
 <?php
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 require_once '../../config/Database.php';
 
 header('Content-Type: application/json');
@@ -17,7 +20,7 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sqlSelectLatest = "SELECT idProcesoVotacion FROM Proceso_Votacion ORDER BY idProcesoVotacion DESC LIMIT 1";
         $resultSelectLatest = $db->query($sqlSelectLatest);
-        $latestProceso = $db->fetchAssoc($resultSelectLatest);
+        $latestProceso = mysqli_fetch_assoc($resultSelectLatest); // Corregido aquí
 
         if ($latestProceso) {
             $idProcesoVotacion = $latestProceso['idProcesoVotacion'];
