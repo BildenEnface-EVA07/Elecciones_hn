@@ -475,11 +475,26 @@ canvas {
         flex-wrap: wrap;
         gap: 10px;
     }
+
+    .action-section {
+        margin-top: 0;
+        margin-bottom: 2rem;
+    }
+
+    .warning-box {
+        margin-top: 0;
+    }
+
+
 }
 
 @media (max-width: 480px) {
     .page-title {
         font-size: 1.8em;
+    }
+
+    .action-section {
+        margin-top: 0.5rem;
     }
 }
 

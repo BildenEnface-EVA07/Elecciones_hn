@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     let currentView = 'dashboard';
-    let currentUserRole = 'admin';
+    let currentUserRole = '';
 
     function updateUserInfo(name, role) {
         userProfileName.textContent = name;
