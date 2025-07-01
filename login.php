@@ -1,3 +1,44 @@
+<?php
+session_start();
+require_once 'backend/config/Database.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $correoElectronico = $_POST['uname'];
+    $clave = $_POST['password'];
+
+    $db = Database::getInstance();
+    $conn = $db->getConnection();
+
+    $stmt = $conn->prepare("SELECT c.idAdmin, p.nombreCompleto, c.clave, c.rol, c.estaActivo FROM Colaboradores c JOIN Personas p ON c.idPersona = p.idPersona WHERE c.correoElectronico = ?");
+    $stmt->bind_param("s", $correoElectronico);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
+        $user = $result->fetch_assoc();
+        if (password_verify($clave, $user['clave'])) {
+            if ($user['estaActivo']) {
+                $_SESSION['loggedin'] = true;
+                $_SESSION['idAdmin'] = $user['idAdmin'];
+                $_SESSION['nombreCompleto'] = $user['nombreCompleto'];
+                $_SESSION['rol'] = $user['rol'];
+
+                header("Location: Dashboard.html");
+                exit();
+            } else {
+                header("Location: login.php?error=Su cuenta está inactiva.");
+                exit();
+            }
+        } else {
+            header("Location: login.php?error=Correo o contraseña incorrectos.");
+            exit();
+        }
+    } else {
+        header("Location: login.php?error=Correo o contraseña incorrectos.");
+        exit();
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,9 +74,9 @@
 </div>
 
 </body>
-<footer>
-    <h2>Heyden Aldana - Héctor Funes - Bilander Fernández</h2>
-    <h2>Copyright © todos los derechos reservados.</h2>
-    <h2>Este es un proyecto simulado y no corresponde al modelo actual del sistema de elecciones generales en Honduras </h2>
+<footer class="footer">
+    <p>Heyden Aldana - Héctor Funes - Bilander Fernández</p>
+    <p>Copyright © todos los derechos reservados.</p>
+    <p>Este es un proyecto simulado y no corresponde al modelo actual del sistema de elecciones generales en Honduras </p>
   </footer>
 </html>

@@ -39,9 +39,9 @@
 <!-- POP UP PARA PEDIR EL CORREO -->
 
 </body>
-<footer>
-    <h2>Heyden Aldana - Héctor Funes - Bilander Fernández</h2>
-    <h2>Copyright © todos los derechos reservados.</h2>
-    <h2>Este es un proyecto simulado y no corresponde al modelo actual del sistema de elecciones generales en Honduras </h2>
-  </footer>
+<footer class="footer">
+        <p>Heyden Aldana - Héctor Funes - Bilander Fernández</p>
+        <p>Copyright &copy; todos los derechos reservados.</p>
+        <p>Este es un proyecto simulado y no corresponde al modelo actual del sistema de elecciones generales en Honduras.</p>
+    </footer>
 </html>

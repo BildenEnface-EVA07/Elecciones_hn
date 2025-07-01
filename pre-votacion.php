@@ -131,8 +131,8 @@
   <header>
     <nav class="navbar">
       <ul class="nav-links">
-        <li><a href="../index.php">Inicio</a></li>
-        <li><a href="#">Proceso de votación</a></li>
+        <li><a href="index.php">Inicio</a></li>
+        <li><a href="">Proceso de votación</a></li>
         <li><a href="#">Preguntas frecuentes</a></li>
         <li><a href="#">Algoritmos</a></li>
       </ul>
@@ -154,10 +154,10 @@
     </form>
   </div>
 
-  <footer>
-    <h2>Heyden Aldana - Héctor Funes - Bilander Fernández</h2>
-    <h2>Copyright © todos los derechos reservados.</h2>
-    <h2>Este es un proyecto simulado y no corresponde al modelo actual del sistema de elecciones generales en Honduras</h2>
+  <footer class="footer">
+        <p>Heyden Aldana - Héctor Funes - Bilander Fernández</p>
+        <p>Copyright &copy; todos los derechos reservados.</p>
+        <p>Este es un proyecto simulado y no corresponde al modelo actual del sistema de elecciones generales en Honduras.</p>
   </footer>
 
   <script>

@@ -56,11 +56,14 @@ h1{
   padding: auto;
 }
 
-footer{
-  background:#393E46;
-  margin: auto;
-  padding: 10px;
-  text-align: center;
+.footer {
+    background-color: #393E46;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    margin-top: 30px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 footer h2{
