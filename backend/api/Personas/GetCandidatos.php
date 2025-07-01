@@ -11,23 +11,32 @@ header("Access-Control-Allow-Headers: Content-Type");
 
 try {
     $db = Database::getInstance();
+
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $result = $db->query("SELECT dni, nombreCompleto FROM Personas");
-        $resultados = $db->fetchAll($result);
-        // Caso 404
-        if (empty($resultados)) {
-            http_response_code(404); 
+        $query = "SELECT idCandidato, idPartido, nombreCandidato, cargo, foto FROM Candidatos";
+        $result = $db->query($query);
+        $candidatos = $db->fetchAll($result);
+
+        if (empty($candidatos)) {
+            http_response_code(404);
             echo json_encode([
                 'status' => 'success',
-                'message' => 'No se encontraron personas',
+                'message' => 'No se encontraron candidatos',
                 'data' => []
             ]);
-        // Caso 200
         } else {
+            foreach ($candidatos as &$candidato) {
+                if (!empty($candidato['foto'])) {
+                    $candidato['foto'] = 'data:image/jpeg;base64,' . base64_encode($candidato['foto']);
+                } else {
+                    $candidato['foto'] = null;
+                }
+            }
+
             echo json_encode([
                 'status' => 'success',
-                'count' => count($resultados),
-                'data' => $resultados
+                'count' => count($candidatos),
+                'data' => $candidatos
             ]);
         }
     }
@@ -35,7 +44,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'status' => 'error',
-        'message' => 'Ha habido un error repentino en el servidor.',
+        'message' => 'Error en el servidor',
         'error' => $e->getMessage()
     ]);
 }
