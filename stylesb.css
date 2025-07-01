@@ -1,0 +1,400 @@
+@font-face {
+    font-family: 'Fredoka'; 
+    src: url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap');
+}
+
+    .seccion-eleccion {
+      text-align: center;
+      padding: 20px 10%;
+    }
+
+    .partido-container {
+      display: inline-block;
+      vertical-align: top;
+      margin: 20px;
+      text-align: center;
+    }
+
+    .partido-logo {
+      width: 120px;
+      height: 120px;
+      background-color: #929AAB;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+
+    .diputado-lista {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .diputado-box {
+      background-color: #929AAB;
+      color: #fff;
+      padding: 15px;
+      border-radius: 20px;
+      width: 180px;
+      text-align: center;
+      position: relative;
+    }
+
+    .diputado-box input[type="checkbox"] {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .partido-nombre {
+      font-weight: 500;
+      margin-bottom: 15px;
+    }
+
+.candidato-card {
+  background-color: #EEEEEE;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+  text-align: left;
+}
+
+ .seccion-eleccion {
+      text-align: center;
+      padding: 20px 10%;
+    }
+
+    .candidatos-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 40px;
+      margin-bottom: 40px;
+    }
+
+    .candidato-box {
+      background-color: #929AAB;
+      color: #d48b01;
+      padding: 20px;
+      border-radius: 20px;
+      width: 250px;
+      text-align: center;
+      transition: transform 0.2s ease-in-out;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .candidato-box input[type="radio"] {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+    }
+
+    .candidato-box:hover {
+      transform: scale(1.05);
+      background-color: #7a828f;
+    }
+
+    .btn-siguiente {
+      background-color: #929AAB;
+      color: #000;
+      border: none;
+      border-radius: 15px;
+      padding: 12px 30px;
+      font-size: 20px;
+      font-family: 'Fredoka';
+      font-weight: 425;
+      cursor: pointer;
+    }
+
+    .btn-siguiente:hover {
+      background-color: #7a828f;
+    }
+
+.candidato-card h3 {
+  font-weight: 500;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.candidato-card p {
+  font-size: 16px;
+  font-weight: 300;
+  margin: 5px 0;
+}
+
+.candidato-card .btn-start {
+  margin-top: 15px;
+  width: 100%;
+  font-size: 18px;
+}
+
+
+body {
+  background: #F7F7F7;
+  margin: 0;
+  font-family: 'Fredoka';
+}
+
+.content {
+  margin-left: 10%;
+  margin-right: 10%;
+  background: #F7F7F7;
+  padding: 10px;
+  text-align: center;
+}
+
+.accede-aqui{
+  margin: 0px;
+  font-family:'Fredoka';
+  font-weight:300;
+  text-decoration: underline;
+}
+
+.titulo-elecciones{
+  font-family: 'Fredoka';
+  font-weight: 401;
+  font-size: 50px;
+  margin-top: 120px;
+  margin-bottom: 120px;
+}
+
+body h2{
+  margin:0px;
+  font-family:'Fredoka';
+  font-weight: lighter;
+}
+
+h1{
+  margin:0px;
+  font-family:'Fredoka';
+  font-weight: lighter;
+}
+
+.btn-start{
+  background-color: #929AAB;
+  color: #000;
+  border: none; 
+  border-radius: 25px; 
+  padding: 10px 20px;
+  font-family: 'Fredoka';
+  font-size: 50px;
+  font-weight: 425;
+  padding: auto;
+}
+
+footer{
+  background:#393E46;
+  margin: auto;
+  padding: 10px;
+  text-align: center;
+}
+
+footer h2{
+  color:#EEEEEE;
+}
+
+/*Procesos*/
+header {
+  background-color: #EEEEEE;
+}
+
+.navbar {
+  max-width: 100%;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  justify-content: space-around;
+}
+
+.nav-links li {
+  margin: 0;
+}
+
+.nav-links a {
+  font-family:'Fredoka';
+  font-weight: 380;
+  display: block;
+  padding: 15px 20px;
+  color: black;
+  text-decoration:none;
+}
+
+.nav-links a:hover {
+  background-color: #929aab;
+  text-decoration:underline;
+}
+
+.pasos {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* dos columnas */
+  grid-template-rows: 1fr 1fr;    /* dos filas */
+  gap: 10px;                      /* espacio entre cuadrantes (opcional) */
+  width: 100%;                   /* o 100% si quieres que se ajuste */
+  height: 400px;
+  margin: 20px auto;
+}
+
+.pasos div {
+  color: black;
+  font-size: 2rem;
+  font-weight: 300;
+  padding-left: 30px;
+}
+
+.pasos h3{
+  font-size:20px;
+  font-weight: 300;
+  margin:0 ;
+}
+
+.municipio-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background-color: #EEEEEE;
+    border-radius: 15px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+  }
+
+  .municipio-section h2 {
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    font-family: 'Fredoka';
+    color: #333;
+  }
+
+  .candidato-box {
+    display: inline-block;
+    width: 250px;
+    margin: 10px;
+    padding: 15px;
+    background-color: #ff8902;
+    border: 2px solid #CCCCCC;
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .candidato-box:hover {
+    background-color: #505050;
+    border-color: #929AAB;
+  }
+
+  .candidato-box input[type="radio"] {
+    margin-top: 10px;
+    transform: scale(1.3);
+  }
+
+  @media (max-width: 768px) {
+    .candidato-box {
+      width: 90%;
+    }
+  }
+
+
+.candidato-box.alcalde {
+  font-weight: 500;
+  color: #fff;
+}
+
+/* Colores por partido */
+.partido-1 { background-color: #C1121F; }  /* Libre */
+.partido-2 { background-color: #0077B6; }  /* Nacional */
+.partido-3 { background-color: #FF4D4D; }  /* Liberal */
+
+.partido-1, .partido-2, .partido-3 {
+  border: 2px solid #222;
+}
+
+/* ===== Responsive para pantallas pequeñas ===== */
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .titulo-elecciones {
+    font-size: 32px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+  .pasos {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    height: auto;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .nav-links a {
+    padding: 10px;
+  }
+
+  .diputado-box {
+    width: 90% !important;
+    margin: 10px auto;
+  }
+
+  .partido-container {
+    width: 100%;
+    margin: 0 auto 30px auto;
+    display: block;
+  }
+
+  .candidatos-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-start, .btn-siguiente {
+    font-size: 24px;
+    padding: 10px 20px;
+    width: 90%;
+    margin: 20px auto;
+  }
+
+  footer h2 {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+.foto-candidato {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit:fill;
+}
+
+.candidato-text{
+  color: #000;
+}
+
+.login-form {
+  width: 100%;
+  border: 3px solid rgba(0, 0, 0, 0.3);
+  background: #F7F7F7; 
+  border-radius: 25px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-top: 2%;
+  padding-bottom: 2%;
+  text-align: left;
+  justify-content: center;
+}
+
+
+
