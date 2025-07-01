@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const navConsultarVotos = document.getElementById('nav-consultar-votos');
     const navGestionEleccionesItem = document.getElementById('nav-gestion-elecciones-item');
     const navGestionElecciones = document.getElementById('nav-gestion-elecciones');
+    const navVerColaboradoresItem = document.getElementById('nav-ver-colaboradores-item');
+    const navVerColaboradores = document.getElementById('nav-ver-colaboradores');
 
     const userProfileName = document.querySelector('.user-profile .user-name');
     const welcomeTitle = document.querySelector('.welcome-title');
@@ -36,6 +38,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 navGestionEleccionesItem.style.display = 'none';
             }
         }
+        if (navVerColaboradoresItem) {
+            if (role === 'admin') {
+                navVerColaboradoresItem.style.display = 'list-item';
+            } else {
+                navVerColaboradoresItem.style.display = 'none';
+            }
+        }
     }
 
     updateUserInfo("Heyden Aldana", "admin");
@@ -54,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (viewName === 'gestion-elecciones' && currentUserRole === 'admin') {
             navGestionElecciones.classList.add('active');
             await renderGestionEleccionesView();
+        } else if (viewName === 'ver-colaboradores' && currentUserRole === 'admin') {
+            navVerColaboradores.classList.add('active');
+            await renderVerColaboradoresView();
         }
         currentView = viewName;
     }
@@ -73,6 +85,17 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             if (currentUserRole === 'admin') {
                 loadView('gestion-elecciones');
+            } else {
+                alert('No tienes permisos para acceder a esta sección.');
+            }
+        });
+    }
+
+    if (navVerColaboradores) {
+        navVerColaboradores.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (currentUserRole === 'admin') {
+                loadView('ver-colaboradores');
             } else {
                 alert('No tienes permisos para acceder a esta sección.');
             }
