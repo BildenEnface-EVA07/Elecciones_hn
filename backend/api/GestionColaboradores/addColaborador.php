@@ -1,7 +1,7 @@
 <?php
-/* ini_set('display_errors', 1);
+ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL); */
+error_reporting(E_ALL);
 
 require_once '../../config/Database.php';
 
@@ -26,7 +26,6 @@ try {
         $rol = $input['rol'] ?? null;
         $clave = $input['clave'] ?? null;
         $errors = [];
-        // DNI validation (13 digits, numeric, does it exist?)
         if (empty($dni) || !preg_match('/^\d{13}$/', $dni)) {
             $errors['dni'] = 'El DNI debe contener exactamente 13 dígitos numéricos.';
         } else {
@@ -38,18 +37,14 @@ try {
             mysqli_stmt_fetch($stmtCheckDni);
             mysqli_stmt_close($stmtCheckDni);
             if ($dniCount > 0) {
-                $errors['dni'] = 'Este DNI ya está registrado.';
+                $errors['dni'] = 'El DNI ya está registrado.';
             }
         }
-
-        // Name validation
         if (empty($nombreCompleto)) {
-            $errors['nombreCompleto'] = 'El nombre es requerido.';
+            $errors['nombreCompleto'] = 'El nombre completo es requerido.';
         }
-
-        // Email validation (does it exist already? Is it good?)
         if (empty($correoElectronico) || !filter_var($correoElectronico, FILTER_VALIDATE_EMAIL)) {
-            $errors['correoElectronico'] = 'Ingrese un correo electrónico válido.';
+            $errors['correoElectronico'] = 'El correo electrónico no es válido.';
         } else {
             $sqlCheckEmail = "SELECT COUNT(*) FROM Colaboradores WHERE correoElectronico = ?";
             $stmtCheckEmail = mysqli_prepare($conn, $sqlCheckEmail);
@@ -59,34 +54,20 @@ try {
             mysqli_stmt_fetch($stmtCheckEmail);
             mysqli_stmt_close($stmtCheckEmail);
             if ($emailCount > 0) {
-                $errors['correoElectronico'] = 'Este correo electrónico ya está registrado.';
+                $errors['correoElectronico'] = 'El correo electrónico ya está registrado.';
             }
         }
-        // Role validation
-        $validRoles = ['admin', 'colaborador'];
-        if (empty($rol) || !in_array($rol, $validRoles)) {
-            $errors['rol'] = 'El rol seleccionado no es válido.';
+        if (empty($rol)) {
+            $errors['rol'] = 'El rol es requerido.';
         }
-        // Password validation (min 8 chars, uppercase, lowercase, number, symbol)
-        if (empty($clave) || strlen($clave) < 8 ||
-            !preg_match('/[A-Z]/', $clave) ||
-            !preg_match('/[a-z]/', $clave) ||
-            !preg_match('/\d/', $clave) ||
-            !preg_match('/[^A-Za-z0-9]/', $clave)) {
-            $errors['clave'] = 'La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, un número y un símbolo especial.';
+        if (empty($clave)) {
+            $errors['clave'] = 'La contraseña es requerida.';
         }
-
         if (!empty($errors)) {
             http_response_code(400);
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Errores de validación',
-                'errors' => $errors
-            ]);
+            echo json_encode(['status' => 'error', 'message' => 'Errores de validación', 'errors' => $errors]);
             exit();
         }
-        $hashedClave = password_hash($clave, PASSWORD_DEFAULT);
-        // Start transaction
         mysqli_begin_transaction($conn);
         try {
             $sqlInsertPersona = "INSERT INTO Personas (dni, nombreCompleto, haVotadoPresidente, haVotadoAlcalde, haVotadoDiputado) VALUES (?, ?, FALSE, FALSE, FALSE)";
@@ -95,29 +76,24 @@ try {
             mysqli_stmt_execute($stmtPersona);
             $idPersona = mysqli_insert_id($conn);
             mysqli_stmt_close($stmtPersona);
-
             if (!$idPersona) {
                 throw new Exception('Failed to insert into Personas table.');
             }
-
-            // Insert into Colaboradores table
+            $hashedClave = password_hash($clave, PASSWORD_DEFAULT);
             $sqlInsertColaborador = "INSERT INTO Colaboradores (idPersona, correoElectronico, clave, rol, estaActivo) VALUES (?, ?, ?, ?, TRUE)";
             $stmtColaborador = mysqli_prepare($conn, $sqlInsertColaborador);
             mysqli_stmt_bind_param($stmtColaborador, 'isss', $idPersona, $correoElectronico, $hashedClave, $rol);
             mysqli_stmt_execute($stmtColaborador);
-            $idAdmin = mysqli_insert_id($conn); // idAdmin for Colaboradores
+            $idAdmin = mysqli_insert_id($conn);
             mysqli_stmt_close($stmtColaborador);
-
             if (!$idAdmin) {
                 throw new Exception('Failed to insert into Colaboradores table.');
             }
-
             mysqli_commit($conn);
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Colaborador agregado correctamente.'
             ]);
-
         } catch (Exception $e) {
             mysqli_rollback($conn);
             http_response_code(500);

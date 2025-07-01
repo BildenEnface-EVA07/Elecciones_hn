@@ -57,7 +57,7 @@ async function renderVerColaboradoresView() {
             </div>
         </div>
 
-        <div id="edit-collaborator-modal" class="modal">
+        <div id="edit-collaborator-modal" class="modal" style="display: none;">
             <div class="modal-content">
                 <span class="close-button">&times;</span>
                 <h2>Editar información del colaborador</h2>
@@ -80,7 +80,7 @@ async function renderVerColaboradoresView() {
             </div>
         </div>
 
-        <div id="add-collaborator-modal" class="modal">
+        <div id="add-collaborator-modal" class="modal" style="display: none;">
             <div class="modal-content">
                 <span class="close-button">&times;</span>
                 <h2>Agregar nuevo colaborador</h2>
@@ -117,7 +117,6 @@ async function renderVerColaboradoresView() {
         <div id="toast-notification" class="toast"></div>
     `;
 
-    // Initialize elements
     const searchInput = document.getElementById('search-collaborator');
     const roleFilterSelect = document.getElementById('filter-role');
     const sortAZCheckbox = document.getElementById('sort-a-z');
@@ -132,7 +131,6 @@ async function renderVerColaboradoresView() {
     const btnEditCollaborator = document.getElementById('btn-edit-collaborator');
     const btnAddCollaborator = document.getElementById('btn-add-collaborator');
 
-    // Modals and their elements
     const editModal = document.getElementById('edit-collaborator-modal');
     const addModal = document.getElementById('add-collaborator-modal');
     const closeButtons = document.querySelectorAll('.close-button');
@@ -152,9 +150,7 @@ async function renderVerColaboradoresView() {
     const toastNotification = document.getElementById('toast-notification');
 
     let selectedCollaborators = new Set();
-    let currentCollaboratorsData = []; // To store data for actions
-
-    // --- Helper Functions ---
+    let currentCollaboratorsData = [];
 
     function showToast(message) {
         toastNotification.textContent = message;
@@ -173,8 +169,6 @@ async function renderVerColaboradoresView() {
         modalElement.style.display = 'none';
         resetModalForm(modalElement === editModal ? 'edit-collaborator-form' : 'add-collaborator-form');
     }
-
-    // --- Fetch Data ---
 
     async function fetchRoles() {
         try {
@@ -219,7 +213,7 @@ async function renderVerColaboradoresView() {
             const data = await response.json();
 
             if (data.status === 'success' && data.data.length > 0) {
-                currentCollaboratorsData = data.data; // Store fetched data
+                currentCollaboratorsData = data.data;
                 populateTable(data.data);
                 updatePagination(data.totalRows, data.currentPage, rowsPerPageColaboradores);
             } else {
@@ -228,7 +222,7 @@ async function renderVerColaboradoresView() {
                 updatePagination(0, 1, rowsPerPageColaboradores);
                 currentCollaboratorsData = [];
             }
-            updateActionButtons(); // Update buttons after fetching data
+            updateActionButtons();
         } catch (error) {
             console.error('Error al obtener los colaboradores:', error);
             tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Error al cargar los datos. Por favor, intente de nuevo.</td></tr>';
@@ -281,7 +275,6 @@ async function renderVerColaboradoresView() {
         nextPageBtn.disabled = currentPage >= totalPagesColaboradores;
     }
 
-    // --- Action Button Logic ---
     function updateSelectAllCheckbox() {
         const checkboxes = document.querySelectorAll('.collaborator-checkbox');
         let allChecked = true;
@@ -303,7 +296,6 @@ async function renderVerColaboradoresView() {
 
     function updateActionButtons() {
         const selectedCheckboxes = Array.from(document.querySelectorAll('.collaborator-checkbox:checked'));
-        // Deshabilitar/Habilitar button logic
         if (selectedCheckboxes.length > 0) {
             const firstState = selectedCheckboxes[0].dataset.estado;
             let allSameState = true;
@@ -324,11 +316,8 @@ async function renderVerColaboradoresView() {
             btnToggleStatus.disabled = true;
             btnToggleStatus.textContent = 'Deshabilitar';
         }
-        // Editar button
         btnEditCollaborator.disabled = selectedCheckboxes.length !== 1;
     }
-
-    // --- Event Listeners --- //
 
     searchInput.addEventListener('input', () => {
         currentSearchText = searchInput.value;
@@ -401,8 +390,8 @@ async function renderVerColaboradoresView() {
             const data = await response.json();
             if (data.status === 'success') {
                 showToast(data.message);
-                selectedCollaborators.clear(); // Clear selection after action
-                fetchColaboradores(); // Re-fetch to update table
+                selectedCollaborators.clear();
+                fetchColaboradores();
             } else {
                 alert('Error: ' + data.message);
             }
@@ -419,8 +408,8 @@ async function renderVerColaboradoresView() {
             editDniInput.value = collaborator.dni;
             editNameInput.value = collaborator.nombreCompleto;
             editRoleSelect.value = collaborator.rol;
-            editModal.dataset.idPersona = selectedId; // Store ID for submission
-            editModal.style.display = 'block';
+            editModal.dataset.idPersona = selectedId;
+            editModal.style.display = 'flex';
         }
     });
 
@@ -458,7 +447,7 @@ async function renderVerColaboradoresView() {
     });
 
     btnAddCollaborator.addEventListener('click', () => {
-        addModal.style.display = 'block';
+        addModal.style.display = 'flex';
     });
 
     addForm.addEventListener('submit', async (event) => {
@@ -466,8 +455,7 @@ async function renderVerColaboradoresView() {
 
         let isValid = true;
 
-        // DNI Validation (13 digits)
-        const dni = addDniInput.value.replace(/-/g, ''); // Remove hyphens for validation
+        const dni = addDniInput.value.replace(/-/g, '');
         if (!/^\d{13}$/.test(dni)) {
             dniError.textContent = 'El DNI debe contener exactamente 13 dígitos numéricos.';
             isValid = false;
@@ -475,7 +463,6 @@ async function renderVerColaboradoresView() {
             dniError.textContent = '';
         }
 
-        // Email Validation
         const email = addEmailInput.value;
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             emailError.textContent = 'Ingrese un correo electrónico válido.';
@@ -484,7 +471,6 @@ async function renderVerColaboradoresView() {
             emailError.textContent = '';
         }
 
-        // Password Validation (min 8 chars, uppercase, lowercase, symbol, number)
         const password = addPasswordInput.value;
         if (password.length < 8 ||
             !/[A-Z]/.test(password) ||
@@ -503,6 +489,8 @@ async function renderVerColaboradoresView() {
 
         const nombreCompleto = addNameInput.value;
         const rol = addRoleSelect.value;
+        
+        const hashedPassword = await hashPassword(password);
 
         try {
             const response = await fetch(`${API_COLABORADORES_URL}addColaborador.php`, {
@@ -515,7 +503,7 @@ async function renderVerColaboradoresView() {
                     nombreCompleto: nombreCompleto,
                     correoElectronico: email,
                     rol: rol,
-                    clave: password
+                    clave: hashedPassword
                 })
             });
             const data = await response.json();
@@ -531,6 +519,14 @@ async function renderVerColaboradoresView() {
             alert('Error de red al agregar el colaborador.');
         }
     });
+
+    async function hashPassword(password) {
+        const msgUint8 = new TextEncoder().encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
 
     closeButtons.forEach(button => {
         button.addEventListener('click', (event) => {
@@ -549,7 +545,7 @@ async function renderVerColaboradoresView() {
             closeModal(addModal);
         }
     });
-    // Initial load
+
     fetchRoles();
     fetchColaboradores();
 }

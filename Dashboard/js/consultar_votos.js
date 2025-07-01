@@ -1,10 +1,49 @@
-const API_BASE_URL = window.location.origin + '/Elecciones_hn/backend/api/Dashboard/'; 
+const API_BASE_URL = window.location.origin + '/Elecciones_hn/backend/api/Dashboard/';
+const API_CARGOS_URL = window.location.origin + '/Elecciones_hn/backend/api/Dashboard/get_cargos.php';
 
 let currentPage = 1;
 const rowsPerPage = 8;
 let totalPages = 1;
 let currentPartyId = '';
 let currentCargo = '';
+
+async function fetchPartiesAndPopulateFilter() {
+    try {
+        const response = await fetch(`${API_BASE_URL}get_partidos.php`);
+        const data = await response.json();
+        const filterPartySelect = document.getElementById('filter-party');
+        if (filterPartySelect && data.status === 'success' && data.data) {
+            filterPartySelect.innerHTML = '<option value="">Todos los Partidos</option>';
+            data.data.forEach(party => {
+                const option = document.createElement('option');
+                option.value = party.idPartido;
+                option.textContent = party.nombrePartido;
+                filterPartySelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching parties:', error);
+    }
+}
+
+async function fetchCargosAndPopulateFilter() {
+    try {
+        const response = await fetch(API_CARGOS_URL);
+        const data = await response.json();
+        const filterCargoSelect = document.getElementById('filter-cargo');
+        if (filterCargoSelect && data.status === 'success' && data.data) {
+            filterCargoSelect.innerHTML = '<option value="">Todas las Candidaturas</option>';
+            data.data.forEach(cargo => {
+                const option = document.createElement('option');
+                option.value = cargo;
+                option.textContent = cargo;
+                filterCargoSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error fetching cargos:', error);
+    }
+}
 
 async function renderConsultarVotosView() {
     const dynamicContent = document.getElementById('dynamic-content');
@@ -40,16 +79,16 @@ async function renderConsultarVotosView() {
                         </tr>
                     </thead>
                     <tbody>
-                        
+                        <tr><td colspan="6" style="text-align: center;">Cargando votos...</td></tr>
                     </tbody>
                 </table>
-                <p id="no-data-message" style="display: none; text-align: center; color: #555; margin-top: 20px;">No hay registro de datos con estos criterios. Cambie los filtros o intente mas tarde</p>
+                <div class="no-data-message" style="display: none;">No se encontraron votos para los filtros seleccionados.</div>
             </div>
 
             <div class="pagination-controls">
-                <button id="prev-page-btn" class="btn-pagination">Anterior</button>
+                <button id="prev-page" class="btn-pagination">Anterior</button>
                 <span id="page-info">Página 1 de 1</span>
-                <button id="next-page-btn" class="btn-pagination">Siguiente</button>
+                <button id="next-page" class="btn-pagination">Siguiente</button>
             </div>
         </div>
     `;
@@ -57,95 +96,75 @@ async function renderConsultarVotosView() {
     const filterPartySelect = document.getElementById('filter-party');
     const filterCargoSelect = document.getElementById('filter-cargo');
     const clearFiltersBtn = document.getElementById('clear-filters-btn');
-    const prevPageBtn = document.getElementById('prev-page-btn');
-    const nextPageBtn = document.getElementById('next-page-btn');
+    const tbody = document.querySelector('#votos-table tbody');
+    const noDataMessage = document.querySelector('.consultar-votos-container .no-data-message');
+    const pageInfoSpan = document.getElementById('page-info');
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
 
-    filterPartySelect.addEventListener('change', (e) => {
-        currentPartyId = e.target.value;
-        currentPage = 1; 
-        fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+    await fetchPartiesAndPopulateFilter();
+    await fetchCargosAndPopulateFilter();
+    await fetchVotes();
+
+    filterPartySelect.addEventListener('change', () => {
+        currentPartyId = filterPartySelect.value;
+        currentPage = 1;
+        fetchVotes();
     });
 
-    filterCargoSelect.addEventListener('change', (e) => {
-        currentCargo = e.target.value;
-        currentPage = 1; 
-        fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+    filterCargoSelect.addEventListener('change', () => {
+        currentCargo = filterCargoSelect.value;
+        currentPage = 1;
+        fetchVotes();
     });
 
     clearFiltersBtn.addEventListener('click', () => {
-        currentPartyId = '';
-        currentCargo = '';
         filterPartySelect.value = '';
         filterCargoSelect.value = '';
+        currentPartyId = '';
+        currentCargo = '';
         currentPage = 1;
-        fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+        fetchVotes();
     });
 
     prevPageBtn.addEventListener('click', () => {
         if (currentPage > 1) {
             currentPage--;
-            fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+            fetchVotes();
         }
     });
 
     nextPageBtn.addEventListener('click', () => {
         if (currentPage < totalPages) {
             currentPage++;
-            fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
+            fetchVotes();
         }
     });
-
-    await populateFilters();
-    await fetchVotos(currentPage, rowsPerPage, currentPartyId, currentCargo);
 }
 
-async function populateFilters() {
-    const filterPartySelect = document.getElementById('filter-party');
-    const filterCargoSelect = document.getElementById('filter-cargo');
-
-    try {
-        const partiesResponse = await fetch(`${API_BASE_URL}get_partidos.php`);
-        const partiesData = await partiesResponse.json();
-        if (partiesData.status === 'success') {
-            partiesData.data.forEach(party => {
-                const option = document.createElement('option');
-                option.value = party.idPartido;
-                option.textContent = party.nombrePartido;
-                filterPartySelect.appendChild(option);
-            });
-        }
-
-        const cargosResponse = await fetch(`${API_BASE_URL}get_cargos.php`);
-        const cargosData = await cargosResponse.json();
-        if (cargosData.status === 'success') {
-            cargosData.data.forEach(cargo => {
-                const option = document.createElement('option');
-                option.value = cargo.cargo;
-                option.textContent = cargo.cargo;
-                filterCargoSelect.appendChild(option);
-            });
-        }
-    } catch (error) {
-        console.error('Error al cargar filtros:', error);
-    }
-}
-
-async function fetchVotos(page, limit, partyId, cargo) {
+async function fetchVotes() {
     const tbody = document.querySelector('#votos-table tbody');
-    const noDataMessage = document.getElementById('no-data-message');
+    const noDataMessage = document.querySelector('.consultar-votos-container .no-data-message');
     const pageInfoSpan = document.getElementById('page-info');
-    const prevPageBtn = document.getElementById('prev-page-btn');
-    const nextPageBtn = document.getElementById('next-page-btn');
+    const prevPageBtn = document.getElementById('prev-page');
+    const nextPageBtn = document.getElementById('next-page');
 
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Cargando datos...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Cargando votos...</td></tr>';
     noDataMessage.style.display = 'none';
 
     try {
-        const response = await fetch(`${API_BASE_URL}votos_data.php?page=${page}&limit=${limit}&partyId=${partyId}&cargo=${cargo}`);
+        const queryParams = new URLSearchParams({
+            page: currentPage,
+            limit: rowsPerPage,
+            partyId: currentPartyId,
+            cargo: currentCargo
+        }).toString();
+
+        const response = await fetch(`${API_BASE_URL}votos_data.php?${queryParams}`);
         const data = await response.json();
 
+        tbody.innerHTML = '';
         if (data.status === 'success' && data.data.length > 0) {
-            tbody.innerHTML = ''; 
             data.data.forEach(voto => {
                 const row = tbody.insertRow();
                 row.insertCell().textContent = voto.nombrePartido;
